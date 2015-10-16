@@ -1,0 +1,47 @@
+ INFO: nweb starting:80:3216
+ INFO: request:GET / HTTP/1.1**Host: 10.160.33.5**Connection: keep-alive**Cache-Control: max-age=0**Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8**Upgrade-Insecure-Requests: 1**User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36**Accept-Encoding: gzip, deflate, sdch**Accept-Language: ja,en;q=0.8,fr;q=0.6****:1
+ INFO: SEND:index.html:1
+ INFO: Header:HTTP/1.1 200 OK
+Server: nweb/23.0
+Content-Length: 239
+Connection: close
+Content-Type: text/html
+
+:1
+ INFO: request:GET /nigel.jpg HTTP/1.1**Host: 10.160.33.5**Connection: keep-alive**Cache-Control: max-age=0**Accept: image/webp,image/*,*/*;q=0.8**User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36**Referer: http://10.160.33.5/**Accept-Encoding: gzip, deflate, sdch**Accept-Language: ja,en;q=0.8,fr;q=0.6****:2
+ INFO: SEND:nigel.jpg:2
+ INFO: Header:HTTP/1.1 200 OK
+Server: nweb/23.0
+Content-Length: 10184
+Connection: close
+Content-Type: image/jpg
+
+:2
+ INFO: request:GET /favicon.ico HTTP/1.1**Host: 10.160.33.5**Connection: keep-alive**Pragma: no-cache**Cache-Control: no-cache**User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36**Accept: */***Referer: http://10.160.33.5/**Accept-Encoding: gzip, deflate, sdch**Accept-Language: ja,en;q=0.8,fr;q=0.6****:3
+ INFO: SEND:favicon.ico:3
+ INFO: Header:HTTP/1.1 200 OK
+Server: nweb/23.0
+Content-Length: 1334
+Connection: close
+Content-Type: image/ico
+
+:3
+ INFO: nweb starting:80:12646
+ INFO: request:GET / HTTP/1.1**Host: 10.160.33.5**Connection: keep-alive**Cache-Control: max-age=0**Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8**Upgrade-Insecure-Requests: 1**User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36**Accept-Encoding: gzip, deflate, sdch**Accept-Language: ja,en;q=0.8,fr;q=0.6****:1
+ INFO: SEND:index.html:1
+ INFO: Header:HTTP/1.1 200 OK
+Server: nweb/23.0
+Content-Length: 80
+Connection: close
+Content-Type: text/html
+
+:1
+ INFO: request:GET /favicon.ico HTTP/1.1**Host: 10.160.33.5**Connection: keep-alive**Pragma: no-cache**Cache-Control: no-cache**User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36**Accept: */***Referer: http://10.160.33.5/**Accept-Encoding: gzip, deflate, sdch**Accept-Language: ja,en;q=0.8,fr;q=0.6****:2
+ INFO: SEND:favicon.ico:2
+ INFO: Header:HTTP/1.1 200 OK
+Server: nweb/23.0
+Content-Length: 1334
+Connection: close
+Content-Type: image/ico
+
+:2
