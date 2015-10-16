@@ -22,7 +22,7 @@ MYSQL *connectDB(){
 MYSQL *excuteSQL(MYSQL *conn, char *sql){
   char sql_str[255];
   memset( &sql_str[0] , 0x00 , sizeof(sql_str) );
-  snprintf( &sql_str[0] , sizeof(sql_str)-1 , "select * from users" );
+  snprintf( &sql_str[0] , sizeof(sql_str)-1 , sql );
   if( mysql_query( conn , &sql_str[0] ) ){
     // error
     mysql_close(conn);
@@ -31,12 +31,37 @@ MYSQL *excuteSQL(MYSQL *conn, char *sql){
   return conn;
 }
 
+void simpleExcuteSQL(char *sql){
+  MYSQL_RES *resp = NULL;
+
+  // mysql接続
+  MYSQL *conn = connectDB();
+
+  // クエリ実行
+  excuteSQL(conn, sql);
+
+  // 後片づけ
+  mysql_free_result(resp);
+  mysql_close(conn);
+}
+
 typedef struct{
   int id;
   char *name;
 } user_t;
 
-void userFindAll(user_t users[]){
+typedef struct{
+  int id;
+  char *title;
+  char *body;
+  char *userName;
+} article_t;
+
+
+
+#define USER
+
+void userFindAll(user_t *users){
   MYSQL_RES *resp = NULL;
   MYSQL_ROW row;
 
@@ -47,7 +72,6 @@ void userFindAll(user_t users[]){
   excuteSQL(conn, "select * from users");
 
   // レスポンス
-  //struct User users[100]; // 100人以上はしらない...
   resp = mysql_use_result(conn);
   int i;
 
@@ -55,9 +79,47 @@ void userFindAll(user_t users[]){
     //printf( "%d : %s\n" , atoi(row[0]) , row[1] );
     users[i].id = atoi(row[0]);
     users[i].name = row[1];
+    printf( "%d : %s\n" , users[i].id , users[i].name );
   }
   
+  // 後片づけ
+  mysql_free_result(resp);
+  mysql_close(conn);
+}
 
+void userInsert(char *name, char *passwd){
+
+    char sql[200];
+    sprintf(sql, "INSERT INTO users (name, passwd) VALUES ('%s', '%s')", name, passwd);
+    simpleExcuteSQL(sql);
+}
+
+#define Article
+
+void articleFindAll(article_t *articles){
+  MYSQL_RES *resp = NULL;
+  MYSQL_ROW row;
+
+  // mysql接続
+  MYSQL *conn = connectDB();
+
+  // クエリ実行
+  excuteSQL(conn, "select * from articles as a join users as u on a.user_id = u.id");
+
+  // レスポンス
+  resp = mysql_use_result(conn);
+  int i;
+
+  for (i=0; (row = mysql_fetch_row(resp)) != NULL; ) {
+    //printf( "%d : %s\n" , atoi(row[0]) , row[1] );
+    articles[i].id = atoi(row[0]);
+    articles[i].title = row[1];
+    articles[i].body = row[2];
+    articles[i].userName = row[5];
+    printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
+            articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
+  }
+  
   // 後片づけ
   mysql_free_result(resp);
   mysql_close(conn);
@@ -65,12 +127,10 @@ void userFindAll(user_t users[]){
 
 int main(void){
   user_t users[100];
+  article_t articles[100];
   userFindAll(users);
-  int count = sizeof(users);
-  int i;
-  for (i=0; i<count; i++){
-    printf( "%d : %s\n" , users[i].id , users[i].name );
-  }
+  articleFindAll(articles);
+  userInsert("shimotai", "passworddesu");
   //MYSQL_RES *resp = NULL;
   //MYSQL_ROW row;
 
