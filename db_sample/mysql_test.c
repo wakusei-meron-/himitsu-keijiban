@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "DBConnect.c"
+#include "myCrypto.c"
 
 /*------------------------ User ----------------------------*/
 
@@ -44,17 +45,53 @@ void userFindAll(user_t *users){
   mysql_close(conn);
 }
 
+/** idからユーザー取得
+ *
+ * @param id
+ */
+//user_t userById(int id){
+//
+//  // 変数の初期化
+//  int i;
+//  user_t user;
+//  MYSQL_RES *resp = NULL;
+//  MYSQL_ROW row;
+//
+//  // MySQLと接続
+//  MYSQL *conn = connectDB();
+//
+//  // クエリ実行
+//  excuteSQL(conn, "SELECT * FROM users WHERE id = id");
+//
+//  // レスポンスを取り出す
+//  resp = mysql_use_result(conn);
+//
+//  // 取り出したレスポンスを構造体Userにマッピング
+//  //for (i=0; (row = mysql_fetch_row(resp)) != NULL; i++) {
+//  //  users[i].id = atoi(row[0]);
+//  //  strncpy(users[i].name, row[1], sizeof(users[i].name));
+//  //  printf( "%d : %s\n" , users[i].id , users[i].name );
+//  //}
+//  
+//  // 後片づけ
+//  mysql_free_result(resp);
+//  mysql_close(conn);
+//}
+
 /** ユーザーの新規作成
  *
  * @param name
  * @param passwd
+ * @param email
  *
  * @return
  */
-void userInsert(char *name, char *passwd){
+void userInsert(char *name, char *passwd, char *email){
 
-    char sql[200];
-    sprintf(sql, "INSERT INTO users (name, passwd) VALUES ('%s', '%s')", name, passwd);
+  unsigned char passwd_cript[200];
+  compute_sha256(passwd, strlen(passwd), passwd_cript);
+  char sql[200];
+  sprintf(sql, "INSERT INTO users (name, passwd, email) VALUES ('%s', '%s', '%s')", name, passwd_cript, email);
     simpleExcuteSQL(sql);
 }
 
@@ -101,12 +138,35 @@ void articleFindAll(article_t *articles){
   mysql_close(conn);
 }
 
+/** 投稿の新規作成
+ *
+ * @param title
+ * @param body
+ * @param userName
+ *
+ * @return
+ */
+void articleInsert(char *title, char *body, char *userName){
+
+    // 変数の初期化
+    char sql[200];
+
+    // トランザクション無いけど...
+    // ユーザーの取得
+
+    sprintf(sql, "INSERT INTO users (name, passwd) VALUES ('%s', '%s')", title, body);
+    simpleExcuteSQL(sql);
+}
+
 /*-------------------- テスト用main関数 -------------------------------*/
 int main(void){
   
   int i;
   user_t users[100];
   article_t articles[100];
+
+  // ユーザーの追加
+  userInsert("shimotai", "passworddayo", "sample@example.com");
 
   // ユーザー一覧の取得
   userFindAll(users);
@@ -120,6 +180,5 @@ int main(void){
     printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
         articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
   }
-  //userInsert("shimotai", "passworddesu");
   return 0;
 }

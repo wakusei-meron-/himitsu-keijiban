@@ -58,7 +58,7 @@ MYSQL *excuteSQL(MYSQL *conn, char *sql){
   return conn;
 }
 
-/** 返り値をハンドリングせず単純に実行
+/** 返り値をハンドリングせず単純にSQLを実行
  * @param sql 実行したいsql
  *
  * @return 1

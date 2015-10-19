@@ -31,7 +31,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'abe','abe'),(2,'bashi','bashi');
+INSERT INTO `users` VALUES (1,'abe','abe', 'abe@example.com'),(2,'bashi','bashi', 'bashi@example.com');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
