@@ -53,7 +53,7 @@ void userFindAll(user_t *users){
  *
  * @return 見つかれば1, 見つからないと0
  */
-int userFindByemail(user_t *user, char *email){
+int userFindByEmail(user_t *user, char *email){
 
   // 変数の初期化
   MYSQL_RES *resp = NULL;
@@ -98,14 +98,23 @@ int userFindByemail(user_t *user, char *email){
  * @param passwd
  * @param email
  *
- * @return
+ * @return 成功=>1, 失敗=>0
  */
-void userInsert(char *name, char *passwd, char *email){
-  unsigned char passwd_cript[200];
+int userInsert(char *name, char *passwd, char *email){
+    
+  // ユーザーが存在していたらエラー
+  user_t user;
+  if (userFindByEmail(&user, email)){
+    return 0;
+  }
+
+  // ユーザー新規作成
+  char passwd_cript[200];
   compute_sha256(passwd, strlen(passwd), passwd_cript);
   char sql[200];
   sprintf(sql, "INSERT INTO users (name, passwd, email) VALUES ('%s', '%s', '%s')", name, passwd_cript, email);
     simpleExcuteSQL(sql);
+  return 1;
 }
 
 /** ユーザーログイン
@@ -117,13 +126,15 @@ void userInsert(char *name, char *passwd, char *email){
  * @param 成功=>1, 失敗=>0
  */
 int userLogin(user_t *user, char *email, char *password){
-  // パスワード用の変数の初期化
-  unsigned char password_cript[200];
 
-  if (userFindByemail(user, email)){
-    compute_sha256(password, strlen(password), password_cript);
-    //printf("input:%s, db:%s, comp: %d\n", 
-    //        password_cript, user->password, strcmp(password_cript, user.password));
+  // パスワード用の変数の初期化、ハッシュの計算
+  char password_cript[200];
+  compute_sha256(password, strlen(password), password_cript);
+
+  // emailからユーザーの検索
+  if (userFindByEmail(user, email)){
+
+    // ハッシュされたパスワードと保存されたパスワードの先頭15文字を比較
     if (!strncmp(password_cript,  user->password, 15)){
       return 1;
     }else{
