@@ -1,84 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mysql/mysql.h>
 
-MYSQL *connectDB(){
-    
-  char *sql_serv  = "localhost";
-  char *user      = "root";
-  char *passwd    = "";
-  char *db_name   = "keijiban";
-  MYSQL *conn     = NULL;
-  // mysql接続
-  conn = mysql_init(NULL);
-  if( !mysql_real_connect(conn,sql_serv,user,passwd,db_name,0,NULL,0) ){
-    // error
-    exit(-1);
-  }
-  return conn;
-}
+#include "DBConnect.c"
 
-MYSQL *excuteSQL(MYSQL *conn, char *sql){
-  char sql_str[255];
-  memset( &sql_str[0] , 0x00 , sizeof(sql_str) );
-  snprintf( &sql_str[0] , sizeof(sql_str)-1 , sql );
-  if( mysql_query( conn , &sql_str[0] ) ){
-    // error
-    mysql_close(conn);
-    exit(-1);
-  }
-  return conn;
-}
+/*------------------------ User ----------------------------*/
 
-void simpleExcuteSQL(char *sql){
-  MYSQL_RES *resp = NULL;
-
-  // mysql接続
-  MYSQL *conn = connectDB();
-
-  // クエリ実行
-  excuteSQL(conn, sql);
-
-  // 後片づけ
-  mysql_free_result(resp);
-  mysql_close(conn);
-}
-
+// userの構造体
 typedef struct{
   int id;
-  char *name;
+  char name[50];
 } user_t;
 
-typedef struct{
-  int id;
-  char *title;
-  char *body;
-  char *userName;
-} article_t;
-
-
-
-#define USER
-
+/** 全てのユーザー取得
+ *
+ * @param users 取得した値を格納するための配列
+ */
 void userFindAll(user_t *users){
+
+  // 変数の初期化
+  int i;
   MYSQL_RES *resp = NULL;
   MYSQL_ROW row;
 
-  // mysql接続
+  // MySQLと接続
   MYSQL *conn = connectDB();
 
   // クエリ実行
   excuteSQL(conn, "select * from users");
 
-  // レスポンス
+  // レスポンスを取り出す
   resp = mysql_use_result(conn);
-  int i;
 
-  for (i=0; (row = mysql_fetch_row(resp)) != NULL; ) {
-    //printf( "%d : %s\n" , atoi(row[0]) , row[1] );
+  // 取り出したレスポンスを構造体Userにマッピング
+  for (i=0; (row = mysql_fetch_row(resp)) != NULL; i++) {
     users[i].id = atoi(row[0]);
-    users[i].name = row[1];
+    strncpy(users[i].name, row[1], sizeof(users[i].name));
     printf( "%d : %s\n" , users[i].id , users[i].name );
   }
   
@@ -87,6 +44,13 @@ void userFindAll(user_t *users){
   mysql_close(conn);
 }
 
+/** ユーザーの新規作成
+ *
+ * @param name
+ * @param passwd
+ *
+ * @return
+ */
 void userInsert(char *name, char *passwd){
 
     char sql[200];
@@ -94,9 +58,24 @@ void userInsert(char *name, char *passwd){
     simpleExcuteSQL(sql);
 }
 
-#define Article
+/*------------------------ Article ----------------------------*/
 
+// Articleの構造体
+typedef struct{
+  int id;
+  char title[255];
+  char body[255];
+  char userName[50];
+} article_t;
+
+/** 全ての投稿の取得
+ *
+ * @param users 取得した値を格納するための配列
+ */
 void articleFindAll(article_t *articles){
+
+  // 変数の初期化
+  int i;
   MYSQL_RES *resp = NULL;
   MYSQL_ROW row;
 
@@ -108,16 +87,13 @@ void articleFindAll(article_t *articles){
 
   // レスポンス
   resp = mysql_use_result(conn);
-  int i;
 
-  for (i=0; (row = mysql_fetch_row(resp)) != NULL; ) {
+  for (i=0; (row = mysql_fetch_row(resp)) != NULL; i++) {
     //printf( "%d : %s\n" , atoi(row[0]) , row[1] );
     articles[i].id = atoi(row[0]);
-    articles[i].title = row[1];
-    articles[i].body = row[2];
-    articles[i].userName = row[5];
-    printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
-            articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
+    strncpy(articles[i].title ,row[1], sizeof(articles[i].title));
+    strncpy(articles[i].body ,row[2], sizeof(articles[i].body));
+    strncpy(articles[i].userName ,row[5], sizeof(articles[i].userName));
   }
   
   // 後片づけ
@@ -125,29 +101,25 @@ void articleFindAll(article_t *articles){
   mysql_close(conn);
 }
 
+/*-------------------- テスト用main関数 -------------------------------*/
 int main(void){
+  
+  int i;
   user_t users[100];
   article_t articles[100];
+
+  // ユーザー一覧の取得
   userFindAll(users);
+  for(i=0; users[i].id == 0; i++){
+    printf( "%d : %s\n" , users[i].id , users[i].name );
+  }
+  
+  // 記事一覧の取得
   articleFindAll(articles);
-  userInsert("shimotai", "passworddesu");
-  //MYSQL_RES *resp = NULL;
-  //MYSQL_ROW row;
-
-  //// mysql接続
-  //MYSQL *conn = connectDB();
-
-  //// クエリ実行
-  //excuteSQL(conn, "select * from users");
-
-  //// レスポンス
-  //resp = mysql_use_result(conn);
-  //while((row = mysql_fetch_row(resp)) != NULL ){
-  //  printf( "%d : %s\n" , atoi(row[0]) , row[1] );
-  //}
-
-  //// 後片づけ
-  //mysql_free_result(resp);
-  //mysql_close(conn);
+  for(i=0; articles[i].id == 0; i++){
+    printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
+        articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
+  }
+  //userInsert("shimotai", "passworddesu");
   return 0;
 }
