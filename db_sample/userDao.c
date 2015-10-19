@@ -11,6 +11,7 @@
 typedef struct{
   int id;
   char name[50];
+  char email[200];
   char password[200];
 } user_t;
 
@@ -81,7 +82,8 @@ int userFindByemail(user_t *user, char *email){
   // 取り出したレスポンスを構造体Userにマッピング
   user->id = atoi(row[0]);
   strncpy(user->name, row[1], sizeof(user->name));
-  strncpy(user->password, row[2], sizeof(user->name));
+  strncpy(user->password, row[2], sizeof(user->password));
+  strncpy(user->email, row[3], sizeof(user->email));
   //printf( "%d : %s, pass: %s\n" , user.id , user.name, user.password );
   
   // 後片づけ
@@ -106,16 +108,26 @@ void userInsert(char *name, char *passwd, char *email){
     simpleExcuteSQL(sql);
 }
 
-int userLogin(char *email, char *password){
-  user_t user;
+/** ユーザーログイン
+ * パスワードの長さが短いとパスワードが合っててもだめかも
+ * 
+ * @param email
+ * @param password
+ *
+ * @param 成功=>1, 失敗=>0
+ */
+int userLogin(user_t *user, char *email, char *password){
+  // パスワード用の変数の初期化
   unsigned char password_cript[200];
 
-  if (userFindByemail(&user, email)){
+  if (userFindByemail(user, email)){
     compute_sha256(password, strlen(password), password_cript);
-    printf("input:%s, db:%s, comp: %d\n", 
-            password_cript, user.password, strcmp(password_cript, user.password));
-    if (strcmp(password_cript,  user.password)){
-      printf( "%d : %s, pass: %s\n" , user.id , user.name, user.password );
+    //printf("input:%s, db:%s, comp: %d\n", 
+    //        password_cript, user->password, strcmp(password_cript, user.password));
+    if (!strncmp(password_cript,  user->password, 15)){
+      return 1;
+    }else{
+      return 0;
     }
   }
   return 0;

@@ -57,7 +57,7 @@ void articleFindAll(article_t *articles){
  *
  * @return
  */
-void articleInsert(char *title, char *body, char *userName){
+void articleInsert(char *title, char *body, int userId){
 
     // 変数の初期化
     char sql[200];
@@ -65,7 +65,7 @@ void articleInsert(char *title, char *body, char *userName){
     // トランザクション無いけど...
     // ユーザーの取得
 
-    sprintf(sql, "INSERT INTO users (name, passwd) VALUES ('%s', '%s')", title, body);
+    sprintf(sql, "INSERT INTO articles (title, body, user_id) VALUES ('%s', '%s', %d)", title, body, userId);
     simpleExcuteSQL(sql);
 }
 
@@ -77,8 +77,16 @@ int main(void){
   //article_t articles[100];
 
   // ユーザーの追加
-  userInsert("shimotai", "passworddayo", "s@example.com");
-  userLogin("s@example.com", "passworddayo");
+  //userInsert("shimotai", "passworddayo", "s@example.com");
+  //
+  user_t user;
+  if (userLogin(&user, "s@example.com", "passworddayo")){
+      printf("nice login\n id: %d, name: %s, email: %s\n",
+        user.id, user.name, user.email);
+  }else{
+    printf("Couldn't login\n");
+  }
+
 
   // ユーザー一覧の取得
   //userFindAll(users);
@@ -86,6 +94,8 @@ int main(void){
   //  printf( "%d : %s\n" , users[i].id , users[i].name );
   //}
   
+  // 記事の追加
+  articleInsert("title", "contents", 1);
   // 記事一覧の取得
   //articleFindAll(articles);
   //for(i=0; articles[i].id == 0; i++){
