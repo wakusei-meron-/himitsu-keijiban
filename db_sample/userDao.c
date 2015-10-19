@@ -11,6 +11,7 @@
 typedef struct{
   int id;
   char name[50];
+  char password[200];
 } user_t;
 
 /** 全てのユーザー取得
@@ -45,38 +46,49 @@ void userFindAll(user_t *users){
   mysql_close(conn);
 }
 
-/** idからユーザー取得
+/** emailからユーザー取得
  *
- * @param id
+ * @param email
+ *
+ * @return 見つかれば1, 見つからないと0
  */
-//user_t userById(int id){
-//
-//  // 変数の初期化
-//  int i;
-//  user_t user;
-//  MYSQL_RES *resp = NULL;
-//  MYSQL_ROW row;
-//
-//  // MySQLと接続
-//  MYSQL *conn = connectDB();
-//
-//  // クエリ実行
-//  excuteSQL(conn, "SELECT * FROM users WHERE id = id");
-//
-//  // レスポンスを取り出す
-//  resp = mysql_use_result(conn);
-//
-//  // 取り出したレスポンスを構造体Userにマッピング
-//  //for (i=0; (row = mysql_fetch_row(resp)) != NULL; i++) {
-//  //  users[i].id = atoi(row[0]);
-//  //  strncpy(users[i].name, row[1], sizeof(users[i].name));
-//  //  printf( "%d : %s\n" , users[i].id , users[i].name );
-//  //}
-//  
-//  // 後片づけ
-//  mysql_free_result(resp);
-//  mysql_close(conn);
-//}
+int userFindByemail(user_t *user, char *email){
+
+  // 変数の初期化
+  MYSQL_RES *resp = NULL;
+  MYSQL_ROW row;
+  char sql[200];
+
+  // MySQLと接続
+  MYSQL *conn = connectDB();
+
+  // クエリ生成
+  sprintf(sql, "SELECT * FROM users WHERE email = '%s' LIMIT 1", email);
+  //printf(sql);
+
+  // クエリ実行
+  excuteSQL(conn, sql);
+
+  // レスポンスを取り出す
+  resp = mysql_use_result(conn);
+
+  // 見つからなかったらreturn 0
+  if ((row = mysql_fetch_row(resp)) == NULL) {
+    printf("couldn't find user\n");
+    return 0;
+  }
+
+  // 取り出したレスポンスを構造体Userにマッピング
+  user->id = atoi(row[0]);
+  strncpy(user->name, row[1], sizeof(user->name));
+  strncpy(user->password, row[2], sizeof(user->name));
+  //printf( "%d : %s, pass: %s\n" , user.id , user.name, user.password );
+  
+  // 後片づけ
+  mysql_free_result(resp);
+  mysql_close(conn);
+  return 1;
+}
 
 /** ユーザーの新規作成
  *
@@ -87,7 +99,6 @@ void userFindAll(user_t *users){
  * @return
  */
 void userInsert(char *name, char *passwd, char *email){
-
   unsigned char passwd_cript[200];
   compute_sha256(passwd, strlen(passwd), passwd_cript);
   char sql[200];
@@ -95,7 +106,17 @@ void userInsert(char *name, char *passwd, char *email){
     simpleExcuteSQL(sql);
 }
 
-//int login(char *email, char *password){
-//
-//  userFindByPass()
-//}
+int userLogin(char *email, char *password){
+  user_t user;
+  unsigned char password_cript[200];
+
+  if (userFindByemail(&user, email)){
+    compute_sha256(password, strlen(password), password_cript);
+    printf("input:%s, db:%s, comp: %d\n", 
+            password_cript, user.password, strcmp(password_cript, user.password));
+    if (strcmp(password_cript,  user.password)){
+      printf( "%d : %s, pass: %s\n" , user.id , user.name, user.password );
+    }
+  }
+  return 0;
+}

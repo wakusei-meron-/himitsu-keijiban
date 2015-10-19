@@ -72,24 +72,25 @@ void articleInsert(char *title, char *body, char *userName){
 /*-------------------- テスト用main関数 -------------------------------*/
 int main(void){
   
-  int i;
-  user_t users[100];
-  article_t articles[100];
+  //int i;
+  //user_t users[100];
+  //article_t articles[100];
 
   // ユーザーの追加
-  userInsert("shimotai", "passworddayo", "sample@example.com");
+  userInsert("shimotai", "passworddayo", "s@example.com");
+  userLogin("s@example.com", "passworddayo");
 
   // ユーザー一覧の取得
-  userFindAll(users);
-  for(i=0; users[i].id == 0; i++){
-    printf( "%d : %s\n" , users[i].id , users[i].name );
-  }
+  //userFindAll(users);
+  //for(i=0; users[i].id == 0; i++){
+  //  printf( "%d : %s\n" , users[i].id , users[i].name );
+  //}
   
   // 記事一覧の取得
-  articleFindAll(articles);
-  for(i=0; articles[i].id == 0; i++){
-    printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
-        articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
-  }
+  //articleFindAll(articles);
+  //for(i=0; articles[i].id == 0; i++){
+  //  printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
+  //      articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
+  //}
   return 0;
 }
