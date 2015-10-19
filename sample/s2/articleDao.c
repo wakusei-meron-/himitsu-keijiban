@@ -1,11 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 //#include "DBConnect.c"
+//#include "dao.h"
 #include "userDao.c"
-
-
 /*------------------------ Article ----------------------------*/
 
 // Articleの構造体
@@ -14,6 +9,7 @@ typedef struct{
   char title[255];
   char body[255];
   char userName[50];
+  char date[255];
 } article_t;
 
 /** 全ての投稿の取得
@@ -31,7 +27,7 @@ void articleFindAll(article_t *articles){
   MYSQL *conn = connectDB();
 
   // クエリ実行
-  excuteSQL(conn, "select * from articles as a join users as u on a.user_id = u.id");
+  excuteSQL(conn, "select * from articles as a join users as u on a.user_id = u.id ORDER BY created_date DESC");
 
   // レスポンス
   resp = mysql_use_result(conn);
@@ -41,6 +37,7 @@ void articleFindAll(article_t *articles){
     articles[i].id = atoi(row[0]);
     strncpy(articles[i].title ,row[1], sizeof(articles[i].title));
     strncpy(articles[i].body ,row[2], sizeof(articles[i].body));
+    strncpy(articles[i].date ,row[4], sizeof(articles[i].date));
     strncpy(articles[i].userName ,row[5], sizeof(articles[i].userName));
   }
   
@@ -57,7 +54,7 @@ void articleFindAll(article_t *articles){
  *
  * @return
  */
-void articleInsert(char *title, char *body, char *userName){
+void articleInsert(char *title, char *body, int userId){
 
     // 変数の初期化
     char sql[200];
@@ -65,32 +62,6 @@ void articleInsert(char *title, char *body, char *userName){
     // トランザクション無いけど...
     // ユーザーの取得
 
-    sprintf(sql, "INSERT INTO users (name, passwd) VALUES ('%s', '%s')", title, body);
+    sprintf(sql, "INSERT INTO articles (title, body, user_id) VALUES ('%s', '%s', %d)", title, body, userId);
     simpleExcuteSQL(sql);
-}
-
-/*-------------------- テスト用main関数 -------------------------------*/
-int main(void){
-  
-  //int i;
-  //user_t users[100];
-  //article_t articles[100];
-
-  // ユーザーの追加
-  userInsert("shimotai", "passworddayo", "s@example.com");
-  userLogin("s@example.com", "passworddayo");
-
-  // ユーザー一覧の取得
-  //userFindAll(users);
-  //for(i=0; users[i].id == 0; i++){
-  //  printf( "%d : %s\n" , users[i].id , users[i].name );
-  //}
-  
-  // 記事一覧の取得
-  //articleFindAll(articles);
-  //for(i=0; articles[i].id == 0; i++){
-  //  printf( "id: %d,  title: %s, body: %s, userName: %s\n" ,
-  //      articles[i].id , articles[i].title, articles[i].body, articles[i].userName);
-  //}
-  return 0;
 }
